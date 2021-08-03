@@ -1,5 +1,7 @@
 package ru.geekbrains.android2.gitclient
 
+import io.reactivex.rxjava3.core.Single
+
 class GithubUsersRepo {
     private val repositories = listOf(
         GithubUser("login1"),
@@ -9,7 +11,6 @@ class GithubUsersRepo {
         GithubUser("login5")
     )
 
-    fun getUsers(): List<GithubUser> {
-        return repositories
-    }
+    fun getUsers() = Single.just(repositories)
+
 }

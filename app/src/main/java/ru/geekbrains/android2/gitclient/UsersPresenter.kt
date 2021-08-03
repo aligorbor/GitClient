@@ -1,6 +1,7 @@
 package ru.geekbrains.android2.gitclient
 
 import com.github.terrakok.cicerone.Router
+import io.reactivex.rxjava3.disposables.Disposable
 import moxy.MvpPresenter
 
 class UsersPresenter(val usersRepo: GithubUsersRepo, val router: Router, val screens: IScreens) :
@@ -16,6 +17,7 @@ class UsersPresenter(val usersRepo: GithubUsersRepo, val router: Router, val scr
     }
 
     val usersListPresenter = UsersListPresenter()
+    var disposable: Disposable? = null
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
@@ -27,13 +29,27 @@ class UsersPresenter(val usersRepo: GithubUsersRepo, val router: Router, val scr
     }
 
     fun loadData() {
-        val users = usersRepo.getUsers()
-        usersListPresenter.users.addAll(users)
-        viewState.updateList()
+        disposable = usersRepo
+            .getUsers()
+            .subscribe(
+                {
+                    usersListPresenter.users.addAll(it)
+                    viewState.updateList()
+                },
+                {
+                    viewState.showToast("Repo Error: ${it.message}")
+                }
+            )
     }
 
     fun backPressed(): Boolean {
         router.exit()
         return true
     }
+
+    override fun onDestroy() {
+        disposable?.dispose()
+        super.onDestroy()
+    }
+
 }
