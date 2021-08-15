@@ -2,14 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/height50"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:foreground="?attr/selectableItemBackground"
     android:gravity="center_vertical"
     tools:ignore="UnusedAttribute">
     <TextView
         android:id="@+id/tv_login"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/pad16"/>
+        android:padding="@dimen/pad16"
+        android:textSize="@dimen/text24"
+        android:textColor="@android:color/black"
+        android:gravity="center_vertical"
+        android:drawablePadding="@dimen/pad16"
+        tools:text="login1"/>
 </LinearLayout>
