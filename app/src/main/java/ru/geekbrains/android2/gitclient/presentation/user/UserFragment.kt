@@ -1,66 +1,57 @@
 package ru.geekbrains.android2.gitclient.presentation.user
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
-import moxy.MvpAppCompatFragment
+import androidx.fragment.app.Fragment
+import by.kirich1409.viewbindingdelegate.viewBinding
 import moxy.ktx.moxyPresenter
-import ru.geekbrains.android2.gitclient.App
-import ru.geekbrains.android2.gitclient.data.user.GitHubUserRepositoryFactory
+import ru.geekbrains.android2.gitclient.R.layout.fragment_user
+import ru.geekbrains.android2.gitclient.arguments
 import ru.geekbrains.android2.gitclient.databinding.FragmentUserBinding
-import ru.geekbrains.android2.gitclient.presentation.BackButtonListener
 import ru.geekbrains.android2.gitclient.presentation.GitHubUserReposViewModel
+import ru.geekbrains.android2.gitclient.presentation.abs.AbsFragment
 import ru.geekbrains.android2.gitclient.presentation.user.adapter.UserReposAdapter
-import ru.geekbrains.android2.gitclient.scheduler.SchedulersFactory
 import ru.geekbrains.android2.gitclient.setStartDrawableCircleImageFromUri
+import javax.inject.Inject
 
-class UserFragment(val textLogin: String = "") : MvpAppCompatFragment(), UserView,
-    BackButtonListener, UserReposAdapter.DelegateRepos {
-    companion object {
-        fun newInstance(textLogin: String) = UserFragment(textLogin)
+class UserFragment : AbsFragment(fragment_user), UserView,
+    UserReposAdapter.DelegateRepos {
+    companion object Factory {
+        private const val ARG_USER_LOGIN = "arg_user_login"
+        fun newInstance(textLogin: String): Fragment =
+            UserFragment()
+                .arguments(ARG_USER_LOGIN to textLogin)
     }
 
-    private var vb: FragmentUserBinding? = null
-    val presenter: UserPresenter by moxyPresenter {
-        UserPresenter(
-            App.instance.router,
-            textLogin,
-            GitHubUserRepositoryFactory.create(),
-            SchedulersFactory.create()
-        )
+    private val userLogin: String by lazy {
+        arguments?.getString(ARG_USER_LOGIN).orEmpty()
+    }
+
+    @Inject
+    lateinit var presenterFactory: UserPresenterFactory
+
+    private val vb: FragmentUserBinding by viewBinding()
+
+    private val presenter: UserPresenter by moxyPresenter {
+        presenterFactory.create(userLogin)
     }
 
     private val reposAdapter = UserReposAdapter(delegate = this)
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ) = FragmentUserBinding.inflate(inflater, container, false).also {
-        vb = it
-    }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        vb?.rvUserRepos?.adapter = reposAdapter
+        vb.rvUserRepos.adapter = reposAdapter
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        vb = null
-    }
-
-    override fun backPressed() = presenter.backPressed()
 
     override fun setLogin(text: String, reposUrl: String) {
-        vb?.tvLoginUser?.text = text
+        vb.tvLoginUser.text = text
         presenter.setRepos(reposUrl)
     }
 
     override fun setAvatar(text: String) {
-        vb?.tvLoginUser?.setStartDrawableCircleImageFromUri(text)
+        vb.tvLoginUser.setStartDrawableCircleImageFromUri(text)
     }
 
     override fun showRepos(repos: List<GitHubUserReposViewModel>) {

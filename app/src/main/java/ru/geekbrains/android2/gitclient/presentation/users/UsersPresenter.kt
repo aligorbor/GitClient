@@ -1,19 +1,19 @@
 package ru.geekbrains.android2.gitclient.presentation.users
 
 import com.github.terrakok.cicerone.Router
+import dagger.assisted.AssistedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import moxy.MvpPresenter
 import ru.geekbrains.android2.gitclient.data.user.GitHubUser
 import ru.geekbrains.android2.gitclient.data.user.GitHubUserRepository
-import ru.geekbrains.android2.gitclient.presentation.IScreens
+import ru.geekbrains.android2.gitclient.presentation.user.UserScreen
 import ru.geekbrains.android2.gitclient.presentation.users.adapter.UserItemView
 import ru.geekbrains.android2.gitclient.scheduler.Schedulers
 
-class UsersPresenter(
+class UsersPresenter @AssistedInject constructor(
     private val usersRepo: GitHubUserRepository,
     private val router: Router,
-    private val screens: IScreens,
     private val schedulers: Schedulers
 ) :
     MvpPresenter<UsersView>() {
@@ -36,7 +36,7 @@ class UsersPresenter(
         viewState.init()
         loadData()
         usersListPresenter.itemClickListener = { itemView ->
-            router.navigateTo(screens.user(usersListPresenter.users[itemView.pos].login))
+            router.navigateTo(UserScreen(usersListPresenter.users[itemView.pos].login))
         }
     }
 
@@ -55,11 +55,6 @@ class UsersPresenter(
                     viewState.showToast("Repo Error: ${it.message}")
                 }
             )
-    }
-
-    fun backPressed(): Boolean {
-        router.exit()
-        return true
     }
 
     override fun onDestroy() {

@@ -16,7 +16,7 @@ import kotlin.math.roundToInt
 
 fun View.click(click: () -> Unit) = setOnClickListener { click() }
 
-fun Fragment.arguments(vararg arguments: Pair<String, Any>): Fragment {
+fun Fragment.arguments(vararg arguments: Pair<String, String>): Fragment {
     this.arguments = bundleOf(*arguments)
     return this
 }

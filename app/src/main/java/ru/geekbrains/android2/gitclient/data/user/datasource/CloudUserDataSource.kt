@@ -6,8 +6,11 @@ import io.reactivex.rxjava3.core.Single
 import ru.geekbrains.android2.gitclient.data.api.GitHubApi
 import ru.geekbrains.android2.gitclient.data.user.GitHubUser
 import ru.geekbrains.android2.gitclient.data.user.GitHubUserRepos
+import javax.inject.Inject
 
-class CloudUserDataSource(private val gitHubApi: GitHubApi) : UserDataSource {
+class CloudUserDataSource @Inject constructor(
+    private val gitHubApi: GitHubApi
+) : UserDataSource {
     override fun getUsers(): Single<List<GitHubUser>> =
         gitHubApi.getUsers()
 

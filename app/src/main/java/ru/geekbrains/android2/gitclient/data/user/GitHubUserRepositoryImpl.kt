@@ -5,8 +5,9 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import ru.geekbrains.android2.gitclient.data.user.datasource.CacheUserDataSource
 import ru.geekbrains.android2.gitclient.data.user.datasource.UserDataSource
+import javax.inject.Inject
 
-class GitHubUserRepositoryImpl(
+class GitHubUserRepositoryImpl @Inject constructor(
     private val cloud: UserDataSource,
     private val cache: CacheUserDataSource
 ) : GitHubUserRepository {

@@ -1,6 +1,8 @@
 package ru.geekbrains.android2.gitclient.presentation.user
 
 import com.github.terrakok.cicerone.Router
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import moxy.MvpPresenter
@@ -9,9 +11,9 @@ import ru.geekbrains.android2.gitclient.presentation.GitHubUserReposViewModel
 import ru.geekbrains.android2.gitclient.presentation.repos.ReposScreen
 import ru.geekbrains.android2.gitclient.scheduler.Schedulers
 
-class UserPresenter(
-    val router: Router,
-    val textLogin: String,
+class UserPresenter @AssistedInject constructor(
+    private val router: Router,
+    @Assisted("login") private val userLogin: String,
     private val userRepository: GitHubUserRepository,
     private val schedulers: Schedulers
 ) : MvpPresenter<UserView>() {
@@ -21,7 +23,7 @@ class UserPresenter(
         super.onFirstViewAttach()
         disposable +=
             userRepository
-                .getUserByLogin(textLogin)
+                .getUserByLogin(userLogin)
                 .observeOn(schedulers.main())
                 .subscribeOn(schedulers.background())
                 .subscribe(
@@ -54,8 +56,4 @@ class UserPresenter(
         disposable.clear()
     }
 
-    fun backPressed(): Boolean {
-        router.exit()
-        return true
-    }
 }

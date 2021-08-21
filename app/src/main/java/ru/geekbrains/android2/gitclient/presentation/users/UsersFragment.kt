@@ -1,54 +1,39 @@
 package ru.geekbrains.android2.gitclient.presentation.users
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import moxy.MvpAppCompatFragment
+import by.kirich1409.viewbindingdelegate.viewBinding
 import moxy.ktx.moxyPresenter
-import ru.geekbrains.android2.gitclient.App
-import ru.geekbrains.android2.gitclient.data.user.GitHubUserRepositoryFactory
+import ru.geekbrains.android2.gitclient.R.layout.fragment_users
+import ru.geekbrains.android2.gitclient.arguments
 import ru.geekbrains.android2.gitclient.databinding.FragmentUsersBinding
-import ru.geekbrains.android2.gitclient.presentation.AndroidScreens
-import ru.geekbrains.android2.gitclient.presentation.BackButtonListener
+import ru.geekbrains.android2.gitclient.presentation.abs.AbsFragment
 import ru.geekbrains.android2.gitclient.presentation.users.adapter.UsersRVAdapter
-import ru.geekbrains.android2.gitclient.scheduler.SchedulersFactory
+import javax.inject.Inject
 
-class UsersFragment : MvpAppCompatFragment(), UsersView, BackButtonListener {
+class UsersFragment : AbsFragment(fragment_users), UsersView {
     companion object {
-        fun newInstance() = UsersFragment()
+        fun newInstance(): Fragment =
+            UsersFragment()
+                .arguments()
     }
 
+    @Inject
+    lateinit var presenterFactory: UsersPresenterFactory
+
     val presenter: UsersPresenter by moxyPresenter {
-        UsersPresenter(
-            GitHubUserRepositoryFactory.create(),
-            App.instance.router,
-            AndroidScreens(),
-            SchedulersFactory.create()
-        )
+        presenterFactory.create()
     }
     var adapter: UsersRVAdapter? = null
 
-    private var vb: FragmentUsersBinding? = null
+    private val vb: FragmentUsersBinding by viewBinding()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ) = FragmentUsersBinding.inflate(inflater, container, false).also {
-        vb = it
-    }.root
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        vb = null
-    }
 
     override fun init() {
-        vb?.rvUsers?.layoutManager = LinearLayoutManager(context)
+        vb.rvUsers.layoutManager = LinearLayoutManager(context)
         adapter = UsersRVAdapter(presenter.usersListPresenter)
-        vb?.rvUsers?.adapter = adapter
+        vb.rvUsers.adapter = adapter
     }
 
     override fun updateList() {
@@ -59,5 +44,4 @@ class UsersFragment : MvpAppCompatFragment(), UsersView, BackButtonListener {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
     }
 
-    override fun backPressed() = presenter.backPressed()
 }
